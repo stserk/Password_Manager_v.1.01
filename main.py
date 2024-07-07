@@ -3,13 +3,15 @@ import pyperclip
 from tkinter import messagebox  # Import messagebox to show alert dialogs
 from customtkinter import *
 import os
+import json
 
 set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 PINK = "#e2979c"
-RED = "#e7305b"
+RED = "#8c95c5"
 GREEN = "#379777"
-YELLOW = "#f7f5dd"
+YELLOW = "#f2d0b9"
+BROWN = "#7f5539"
 FONT_NAME = "Arial"
 
 
@@ -49,20 +51,48 @@ def save_password():
     email = email_entry.get()
     password = password_entry.get()
 
+    new_data = {
+        website: {
+            "email": email,
+            "password": password
+        }
+    }
+
     if len(website) == 0 or len(password) == 0:
         messagebox.showwarning(title="Oops", message="Please don't leave any fields empty!")
     else:
-        is_ok = messagebox.askokcancel(title=website, message=f"These are the details entered: \nEmail: {email}\n"
-                                                              f"Password: {password}\nIs it ok to save?")
-        if is_ok:
-            with open("data.txt", "a") as data_file:
-                data_file.write(f"{website} | {email} | {password}\n")
+        try:
+            with open("data.json", "r") as data_file:
+                data = json.load(data_file)
+                data.update(new_data)
+        except FileNotFoundError:
+            data = new_data
+        finally:
+            with open("data.json", "w") as data_file:
+                json.dump(data, data_file, indent=4)
+
                 website_entry.delete(0, END)
                 password_entry.delete(0, END)
-            os.system("data.txt")  # Open the file with the saved passwords
+                messagebox.showwarning(title="Password saved", message="Your password has been saved!🔒")
+
 
 
         # ---------------------------- UI SETUP ------------------------------- #
+
+def search_password():
+    website = website_entry.get()
+
+    try:
+        with open("data.json", "r") as data_file:
+            data = json.load(data_file)
+            password = data[website]["password"]
+            email = data[website]["email"]
+            messagebox.showwarning(title=website, message=f"Email: {email}\nPassword: {password}")
+    except FileNotFoundError:
+        messagebox.showwarning(title="Error", message="No Data File Found")
+    except KeyError:
+        messagebox.showwarning(title="Error", message=f"No details for the {website} exists")
+
 window = CTk()
 
 window.title("Password Manager")
@@ -74,31 +104,34 @@ app_name.grid(row=0, column=0, pady=15, columnspan=3)
 
 # Labels
 website_label = CTkLabel(window, text="Website:", font=(FONT_NAME, 14))
-website_label.grid(column=0, row=1, pady=5)
+website_label.grid(column=0, row=1, padx=(0, 10), pady=5)
 
 email_label = CTkLabel(window, text="Email/Username:", font=(FONT_NAME, 14))
-email_label.grid(column=0, row=2, pady=5)
+email_label.grid(column=0, row=2, padx=(0, 10), pady=5)
 
 password_label = CTkLabel(window, text="Password:", font=(FONT_NAME, 14))
-password_label.grid(column=0, row=3, pady=5)
+password_label.grid(column=0, row=3, padx=(0, 10), pady=5)
 
 # Entries
-website_entry = CTkEntry(window, width=270, font=(FONT_NAME, 14))
-website_entry.grid(column=1, row=1, columnspan=2, pady=5)
+website_entry = CTkEntry(window, 200, font=(FONT_NAME, 14))
+website_entry.grid(column=1, row=1, pady=5)
 website_entry.focus()  # Set focus to the website entry field
 
-email_entry = CTkEntry(window, width=270, font=(FONT_NAME, 14))
+email_entry = CTkEntry(window, width=350, font=(FONT_NAME, 14))
 email_entry.grid(column=1, row=2, columnspan=2, pady=5)
 email_entry.insert(0, "sergey.tserkonyuk@gmail.com")  # Pre-fill the email entry field
 
-password_entry = CTkEntry(window, width=150, font=(FONT_NAME, 14))
-password_entry.grid(column=1, row=3, pady=5, padx=5)
+password_entry = CTkEntry(window, width=200, font=(FONT_NAME, 14))
+password_entry.grid(column=1, row=3, pady=5)
 
 # Buttons
-generate_password_button = CTkButton(window, text="Generate Password", command=generate_password,font=(FONT_NAME, 14))
-generate_password_button.grid(column=2, row=3, pady=5, padx=5, sticky="W")
+generate_password_button = CTkButton(window, text="Generate Password", width=100, command=generate_password,font=(FONT_NAME, 14))
+generate_password_button.grid(column=2, row=3, pady=5, padx=(10, 0), sticky="W")
 
-add_button = CTkButton(window, text="Add", width=250, command=save_password, fg_color=GREEN, font=(FONT_NAME, 16))
-add_button.grid(column=0, row=4, columnspan=3, pady=25, padx=20)
+add_button = CTkButton(window, text="Add", width=200, command=save_password, fg_color=GREEN, font=(FONT_NAME, 16))
+add_button.grid(column=0, row=4, columnspan=3, pady=5, padx=(10, 0))
+
+search_button = CTkButton(window, text="Search", width=100, command=search_password, font=(FONT_NAME, 14), fg_color=YELLOW, text_color=BROWN)
+search_button.grid(column=2, row=1, pady=5, padx=(10, 0))
 
 window.mainloop()
