@@ -12,6 +12,7 @@ RED = "#8c95c5"
 GREEN = "#379777"
 YELLOW = "#f2d0b9"
 BROWN = "#7f5539"
+BLACK = "#000000"
 FONT_NAME = "Arial"
 
 
@@ -79,6 +80,8 @@ def save_password():
 
         # ---------------------------- UI SETUP ------------------------------- #
 
+def open_list():
+    os.system('data.json')
 def search_password():
     website = website_entry.get()
 
@@ -128,10 +131,13 @@ password_entry.grid(column=1, row=3, pady=5)
 generate_password_button = CTkButton(window, text="Generate Password", width=100, command=generate_password,font=(FONT_NAME, 14))
 generate_password_button.grid(column=2, row=3, pady=5, padx=(10, 0), sticky="W")
 
-add_button = CTkButton(window, text="Add", width=200, command=save_password, fg_color=GREEN, font=(FONT_NAME, 16))
-add_button.grid(column=0, row=4, columnspan=3, pady=5, padx=(10, 0))
+add_button = CTkButton(window, text="Add", width=300, command=save_password, fg_color=GREEN, font=(FONT_NAME, 16))
+add_button.grid(column=1, row=4, columnspan=3, pady=5, padx=(10, 0))
 
 search_button = CTkButton(window, text="Search", width=100, command=search_password, font=(FONT_NAME, 14), fg_color=YELLOW, text_color=BROWN)
 search_button.grid(column=2, row=1, pady=5, padx=(10, 0))
+
+open_list_button = CTkButton(window, text="Open List", width=100, command=open_list, font=(FONT_NAME, 14), fg_color=RED, text_color=BLACK)
+open_list_button.grid(column=0, row=4, pady=5, padx=(10, 0))
 
 window.mainloop()
