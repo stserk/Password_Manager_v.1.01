@@ -8,7 +8,7 @@ import json
 set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 PINK = "#e2979c"
-RED = "#8c95c5"
+NAVY = "#8c95c5"
 GREEN = "#379777"
 YELLOW = "#f2d0b9"
 BROWN = "#7f5539"
@@ -65,23 +65,37 @@ def save_password():
         try:
             with open("data.json", "r") as data_file:
                 data = json.load(data_file)
-                data.update(new_data)
         except FileNotFoundError:
-            data = new_data
-        finally:
+            data = {}
+
+        if website in data:
+            overwrite = messagebox.askyesno(title="Warning", message=f"You already have a password for {website}. Do you want to change it?")
+            if overwrite:
+                data.update(new_data)
+                with open("data.json", "w") as data_file:
+                    json.dump(data, data_file, indent=4)
+                messagebox.showinfo(title="Password saved", message="Your password has been saved!🔒")
+            else:
+                return
+        else:
+            data.update(new_data)
             with open("data.json", "w") as data_file:
                 json.dump(data, data_file, indent=4)
+            messagebox.showinfo(title="Password saved", message="Your password has been saved!🔒")
 
-                website_entry.delete(0, END)
-                password_entry.delete(0, END)
-                messagebox.showwarning(title="Password saved", message="Your password has been saved!🔒")
-
-
+        website_entry.delete(0, END)
+        password_entry.delete(0, END)
 
         # ---------------------------- UI SETUP ------------------------------- #
 
+
 def open_list():
-    os.system('data.json')
+    if os.path.exists('data.json'):
+        os.system('data.json')
+    else:
+        messagebox.showwarning(title="Error", message="No Data File Found")
+
+
 def search_password():
     website = website_entry.get()
 
@@ -96,13 +110,14 @@ def search_password():
     except KeyError:
         messagebox.showwarning(title="Error", message=f"No details for the {website} exists")
 
+
 window = CTk()
 
 window.title("Password Manager")
 window.configure(padx=40, pady=40)
 
 # Canvas for the logo
-app_name = CTkLabel(window, text="🔒", font=(FONT_NAME, 150), text_color=RED)
+app_name = CTkLabel(window, text="🔒", font=(FONT_NAME, 150), text_color=NAVY)
 app_name.grid(row=0, column=0, pady=15, columnspan=3)
 
 # Labels
@@ -128,16 +143,19 @@ password_entry = CTkEntry(window, width=200, font=(FONT_NAME, 14))
 password_entry.grid(column=1, row=3, pady=5)
 
 # Buttons
-generate_password_button = CTkButton(window, text="Generate Password", width=100, command=generate_password,font=(FONT_NAME, 14))
+generate_password_button = CTkButton(window, text="Generate Password", width=100, command=generate_password,
+                                     font=(FONT_NAME, 14))
 generate_password_button.grid(column=2, row=3, pady=5, padx=(10, 0), sticky="W")
 
 add_button = CTkButton(window, text="Add", width=300, command=save_password, fg_color=GREEN, font=(FONT_NAME, 16))
 add_button.grid(column=1, row=4, columnspan=3, pady=5, padx=(10, 0))
 
-search_button = CTkButton(window, text="Search", width=100, command=search_password, font=(FONT_NAME, 14), fg_color=YELLOW, text_color=BROWN)
+search_button = CTkButton(window, text="Search", width=100, command=search_password, font=(FONT_NAME, 14),
+                          fg_color=YELLOW, text_color=BROWN, hover_color=NAVY)
 search_button.grid(column=2, row=1, pady=5, padx=(10, 0))
 
-open_list_button = CTkButton(window, text="Open List", width=100, command=open_list, font=(FONT_NAME, 14), fg_color=RED, text_color=BLACK)
+open_list_button = CTkButton(window, text="Open List", width=100, command=open_list, font=(FONT_NAME, 14),
+                             fg_color=NAVY, text_color=BLACK, hover_color=GREEN)
 open_list_button.grid(column=0, row=4, pady=5, padx=(10, 0))
 
 window.mainloop()
