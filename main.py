@@ -6,7 +6,7 @@ import os
 import json
 
 set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
-set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 PINK = "#e2979c"
 NAVY = "#8c95c5"
 GREEN = "#379777"
@@ -94,7 +94,6 @@ def open_list():
         os.system('data.json')
     else:
         messagebox.showwarning(title="Error", message="No Data File Found")
-
 
 def search_password():
     website = website_entry.get()
